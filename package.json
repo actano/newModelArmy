@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "chai": "^3.5.0",
+    "lodash": "^4.11.1",
     "node-uuid": "^1.4.7"
   }
 }
