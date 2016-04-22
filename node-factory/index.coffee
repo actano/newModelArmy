@@ -4,11 +4,11 @@ times = require 'lodash/times'
 module.exports = ->
     service = {}
 
-    service.createTree = (numberOfChildren, depth, infoSize) ->
+    service.createTree = (numberOfChildren, maxDepth, infoSizeInChars) ->
         nodes = {}
         relations = []
 
-        createSubtree = (numberOfChildren, maxDepth, infoSizeInChars, parent, currentDepth, currentChildNumber) ->
+        createSubtree = (parent, currentDepth, currentChildNumber) ->
             return if currentDepth is maxDepth
 
             node = service.createNode infoSizeInChars, currentDepth, currentChildNumber
@@ -18,7 +18,7 @@ module.exports = ->
             relations.push relation
 
             times numberOfChildren, (n) ->
-                createSubtree(numberOfChildren, maxDepth, infoSizeInChars, node, currentDepth + 1, n)
+                createSubtree(node, currentDepth + 1, n)
 
             {
                 rootId: node.id
