@@ -17,4 +17,5 @@ describe 'create Node', ->
     it 'creates a tree when createTree()', ->
         result = factory.createTree(1, 1, 1)
         expect(result.rootId).to.exist
-        expect(result.relations).to.have.length(1)
+        expect(Object.keys(result.nodes)).to.have.length 1
+        expect(result.relations).to.have.length 1

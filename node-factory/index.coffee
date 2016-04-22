@@ -26,9 +26,9 @@ module.exports = ->
                 relations
             }
 
-        createSubtree(numberOfChildren, depth, infoSize, {id: null}, 0, 0)
+        createSubtree({id: null}, 0, 0)
 
-     service.createNode = (infoSizeInChars, depth, childNumber) ->
+    service.createNode = (infoSizeInChars, depth, childNumber) ->
         id: @createId()
         data:
             startDate: childNumber - depth
@@ -44,6 +44,6 @@ module.exports = ->
         targetId: targetId
 
     service.createId = uuid.v4
-    service.createString = (size) -> service.createId * size
+    service.createString = (size) -> service.createId() * size
 
     return service
