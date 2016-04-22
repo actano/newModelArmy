@@ -1,0 +1,2 @@
+seamless = require 'seamless-immutable'
+

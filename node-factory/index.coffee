@@ -1,49 +1,52 @@
 uuid = require 'node-uuid'
 times = require 'lodash/times'
 
-module.exports = ->
-    service = {}
+createTree = (numberOfChildren, maxDepth, infoSize) ->
+    nodes = {}
+    relations = []
 
-    service.createTree = (numberOfChildren, maxDepth, infoSizeInChars) ->
-        nodes = {}
-        relations = []
+    createSubtree = (parent, currentDepth) ->
+        return if currentDepth > maxDepth
 
-        createSubtree = (parent, currentDepth, currentChildNumber) ->
-            return if currentDepth is maxDepth
+        times numberOfChildren, (childNumber) ->
+            node = createNode infoSize, currentDepth, childNumber
+            createRelation(parent.id, node.id)
+            createSubtree(node, currentDepth + 1)
 
-            node = service.createNode infoSizeInChars, currentDepth, currentChildNumber
-            nodes[node.id] = node
+        {
+            rootId: parent.id
+            nodes
+            relations
+        }
 
-            relation = service.createRelation(parent.id, node.id)
-            relations.push relation
+    createNode = (infoSize, depth, childNumber) ->
+        node = {
+            id: createId()
+            dates:
+                startDate: childNumber - depth
+                duration: 2 * depth
+            info: [
+                note: createString infoSize
+                additionalNote: createString infoSize
+            ]
+        }
 
-            times numberOfChildren, (n) ->
-                createSubtree(node, currentDepth + 1, n)
+        nodes[node.id] = node
+        return node
 
-            {
-                rootId: node.id
-                nodes
-                relations
-            }
+    createRelation = (sourceId, targetId) ->
+        relation = {
+            id: createId()
+            sourceId: sourceId
+            targetId: targetId
+        }
+        relations.push relation
+        return relation
 
-        createSubtree({id: null}, 0, 0)
+    createString = (size) -> createId().repeat size
+    createId = uuid.v4
 
-    service.createNode = (infoSizeInChars, depth, childNumber) ->
-        id: @createId()
-        data:
-            startDate: childNumber - depth
-            duration: 2 * depth
-        info: [
-            note: @createString infoSizeInChars
-            additionalNote: @createString infoSizeInChars
-        ]
+    root = createNode infoSize, 0, 0
+    createSubtree(root, 1)
 
-    service.createRelation = (sourceId, targetId) ->
-        id: @createId()
-        sourceId: sourceId
-        targetId: targetId
-
-    service.createId = uuid.v4
-    service.createString = (size) -> service.createId() * size
-
-    return service
+module.exports = createTree
