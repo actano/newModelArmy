@@ -10,17 +10,11 @@ calculateMinMaxImmutable = (store, nodeId) ->
     node = loadNodeIm store, nodeId
     childrenIds = getChildrenIds store, node
 
-    # Use size instead of length
     if childrenIds.size < 1
         return store
 
     childrenIds.forEach (childId) ->
         store = calculateMinMaxImmutable store, childId
-
-    # This does not work !!!
-#    for childId in childrenIds
-#        console.log 'another turn - oo'
-#        store = calculateMinMaxImmutable store, childId
 
     children = loadNodesIm store, childrenIds
 
