@@ -43,6 +43,7 @@ describe.only 'min max algorithm', ->
             console.log 'relations length', store.relations.length
 
         it 'should return correct min max values', ->
+            console.log store
             rootId = store.rootId
             store = minMaxCalculator.calculateMinMaxMutable store, rootId
             verifyResult store, rootId
@@ -83,8 +84,8 @@ describe.only 'min max algorithm', ->
 
         endDate = node.dates.startDate + node.dates.duration
 
-        expect(node.dates.startDate).to.equal -maxDepth
-        expect(endDate).to.equal maxDepth + numberOfChildren - 1
+        expect(node.dates.startDate).to.equal -maxDepth()
+        expect(endDate).to.equal maxDepth() + numberOfChildren() - 1
 
 
 
