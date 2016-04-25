@@ -1,4 +1,6 @@
 {expect} = require 'chai'
+memo = require 'memo-is'
+
 # _ = require 'lodash'
 seamless = require 'seamless-immutable'
 immutable = require 'immutable'
@@ -8,9 +10,9 @@ createTree = require '../node-factory'
 records = require '../records'
 
 describe.only 'min max algorithm', ->
-    numberOfChildren = null
-    maxDepth = null
-    infoSize = null
+    numberOfChildren = memo().is -> null
+    maxDepth = memo().is -> null
+    infoSize = memo().is -> null
 
     store = null
 
@@ -32,13 +34,13 @@ describe.only 'min max algorithm', ->
 
 
     describe 'plain mutable JS', ->
-        # values are overwritten by last defined values! Change that
-        numberOfChildren = 2
-        maxDepth = 2
-        infoSize = 2
+        numberOfChildren.is -> 1
+        maxDepth.is -> 1
+        infoSize.is -> 1
 
         beforeEach 'createData', ->
-            store = createTree numberOfChildren, maxDepth, infoSize
+            store = createTree numberOfChildren(), maxDepth(), infoSize()
+            console.log 'relations length', store.relations.length
 
         it 'should return correct min max values', ->
             rootId = store.rootId
@@ -46,12 +48,13 @@ describe.only 'min max algorithm', ->
             verifyResult store, rootId
 
     describe 'seamless immutable', ->
-        numberOfChildren = 2
-        maxDepth = 2
-        infoSize = 2
+        numberOfChildren.is -> 2
+        maxDepth.is -> 2
+        infoSize.is -> 2
 
         beforeEach 'createData', ->
-            store = seamless createTree numberOfChildren, maxDepth, infoSize
+            store = seamless createTree numberOfChildren(), maxDepth(), infoSize()
+            console.log 'relations length', store.relations.length
 
         it 'should return correct min max values', ->
             rootId = store.rootId
@@ -59,12 +62,13 @@ describe.only 'min max algorithm', ->
             verifyResult store, rootId
 
     describe 'immutable JS', ->
-        numberOfChildren = 2
-        maxDepth = 2
-        infoSize = 2
+        numberOfChildren.is -> 3
+        maxDepth.is -> 3
+        infoSize.is -> 3
 
         beforeEach 'createData', ->
-            store = records.createStore createTree numberOfChildren, maxDepth, infoSize
+            store = records.createStore createTree numberOfChildren(), maxDepth(), infoSize()
+            console.log 'relations length', store.relations.size
 
         it 'should return correct min max values', ->
             rootId = store.rootId
