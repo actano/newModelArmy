@@ -1,7 +1,7 @@
 {expect} = require 'chai'
 factory = require('../node-factory')()
 
-describe 'create Node', ->
+describe.skip 'create Node', ->
 
     it 'creates a node with data, relations and info when createNode()', ->
         newNode = factory.createNode(36, 3, 2)

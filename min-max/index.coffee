@@ -6,6 +6,24 @@ calculateMinMaxMutable = (store, nodeId) ->
 calculateMinMaxSeamless = (store, nodeId) ->
     calculateMinMax store, nodeId, updateSeamless
 
+calculateMinMaxWithCloning = (store, nodeId) ->
+    node = loadClonedNode store, nodeId
+    childrenIds = getChildrenIds store, node
+
+    if childrenIds.length < 1
+        return store
+
+    for childId in childrenIds
+        store = calculateMinMaxWithCloning store, childId
+
+    children = loadClonedNodes store, childrenIds
+
+    startDate = _.min children.map (node) -> node.dates.startDate
+    endDate = _.max children.map (node) -> calculateEndDate node
+
+    updateMutableForCloneAlgorithm(store, node, startDate, endDate)
+
+
 calculateMinMaxImmutable = (store, nodeId) ->
     node = loadNodeIm store, nodeId
     childrenIds = getChildrenIds store, node
@@ -50,6 +68,17 @@ updateMutable = (store, node, startDate, endDate) ->
 
     return store
 
+updateMutableForCloneAlgorithm = (store, node, startDate, endDate) ->
+    if node.dates.startDate > startDate
+        node.dates.startDate = startDate
+
+    if calculateEndDate(node) < endDate
+        node.dates.duration = endDate - node.dates.startDate
+
+    store.nodes[node.id] = node
+
+    return store
+
 updateSeamless = (store, node, startDate, endDate) ->
     if node.dates.startDate > startDate
         store = store.setIn ['nodes', node.id, 'dates', 'startDate'], startDate
@@ -61,6 +90,30 @@ updateSeamless = (store, node, startDate, endDate) ->
 
 calculateEndDate = (node) ->
     node.dates.startDate + node.dates.duration
+
+loadClonedNode = (store, id) ->
+#    node = Object.assign {}, store.nodes[id]
+#
+#    `
+#    if (node == store.nodes[id]) {
+#      throw new Error('node: no deep clone');
+#    }
+#
+#    if (node.info == store.nodes[id].info) {
+#        throw new Error('node.info: no deep clone');
+#    }
+#
+#    if (node.info.note == store.nodes[id].info.note) {
+#        throw new Error('node.info.note: no deep clone');
+#    }
+#    `
+
+    node = _.cloneDeep store.nodes[id]
+
+    return node
+
+loadClonedNodes = (store, ids) ->
+    ids.map (id) -> loadClonedNode store, id
 
 loadNode = (store, id) ->
     store.nodes[id]
@@ -80,5 +133,5 @@ getChildrenIds = (store, parent) ->
         .map (relation) -> relation.targetId
 
 
-module.exports = {calculateMinMaxMutable, calculateMinMaxSeamless, calculateMinMaxImmutable}
+module.exports = {calculateMinMaxMutable, calculateMinMaxSeamless, calculateMinMaxImmutable, calculateMinMaxWithCloning}
 

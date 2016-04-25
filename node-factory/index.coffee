@@ -43,7 +43,9 @@ createTree = (numberOfChildren, maxDepth, infoSize) ->
         relations.push relation
         return relation
 
-    createString = (size) -> createId().repeat size
+    createString = (size) ->
+         s = createId().repeat size
+
     createId = uuid.v4
 
     root = createNode infoSize, 0, 0
