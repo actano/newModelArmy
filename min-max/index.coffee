@@ -23,6 +23,23 @@ calculateMinMaxWithCloning = (store, nodeId) ->
 
     updateMutableForCloneAlgorithm(store, node, startDate, endDate)
 
+updateMutableForCloneAlgorithm = (store, node, startDate, endDate) ->
+    if node.dates.startDate > startDate
+        node.dates.startDate = startDate
+
+    if calculateEndDate(node) < endDate
+        node.dates.duration = endDate - node.dates.startDate
+
+    store.nodes[node.id] = node
+
+    return store
+
+loadClonedNodes = (store, ids) ->
+    ids.map (id) -> loadClonedNode store, id
+
+loadClonedNode = (store, id) ->
+    return _.cloneDeep store.nodes[id]
+
 
 calculateMinMaxImmutable = (store, nodeId) ->
     node = loadNodeIm store, nodeId
@@ -40,6 +57,12 @@ calculateMinMaxImmutable = (store, nodeId) ->
     endDate = children.map((node) -> calculateEndDate node).max()
 
     updateSeamless(store, node, startDate, endDate)
+
+loadNodesIm = (store, ids) ->
+    ids.map (id) -> loadNodeIm store, id
+
+loadNodeIm = (store, id) ->
+    store.nodes.get id
 
 
 calculateMinMax = (store, nodeId, updateFunction) ->
@@ -68,17 +91,6 @@ updateMutable = (store, node, startDate, endDate) ->
 
     return store
 
-updateMutableForCloneAlgorithm = (store, node, startDate, endDate) ->
-    if node.dates.startDate > startDate
-        node.dates.startDate = startDate
-
-    if calculateEndDate(node) < endDate
-        node.dates.duration = endDate - node.dates.startDate
-
-    store.nodes[node.id] = node
-
-    return store
-
 updateSeamless = (store, node, startDate, endDate) ->
     if node.dates.startDate > startDate
         store = store.setIn ['nodes', node.id, 'dates', 'startDate'], startDate
@@ -88,44 +100,14 @@ updateSeamless = (store, node, startDate, endDate) ->
 
     return store
 
-calculateEndDate = (node) ->
-    node.dates.startDate + node.dates.duration
-
-loadClonedNode = (store, id) ->
-#    node = Object.assign {}, store.nodes[id]
-#
-#    `
-#    if (node == store.nodes[id]) {
-#      throw new Error('node: no deep clone');
-#    }
-#
-#    if (node.info == store.nodes[id].info) {
-#        throw new Error('node.info: no deep clone');
-#    }
-#
-#    if (node.info.note == store.nodes[id].info.note) {
-#        throw new Error('node.info.note: no deep clone');
-#    }
-#    `
-
-    node = _.cloneDeep store.nodes[id]
-
-    return node
-
-loadClonedNodes = (store, ids) ->
-    ids.map (id) -> loadClonedNode store, id
-
 loadNode = (store, id) ->
     store.nodes[id]
-
-loadNodeIm = (store, id) ->
-    store.nodes.get id
 
 loadNodes = (store, ids) ->
     ids.map (id) -> loadNode store, id
 
-loadNodesIm = (store, ids) ->
-    ids.map (id) -> loadNodeIm store, id
+calculateEndDate = (node) ->
+    node.dates.startDate + node.dates.duration
 
 getChildrenIds = (store, parent) ->
     store.relations
