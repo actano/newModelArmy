@@ -5,13 +5,23 @@ times = require 'lodash/times'
 seamless = require 'seamless-immutable'
 seamlessProduction = require 'seamless-immutable/seamless-immutable.production.min'
 immutable = require 'immutable'
+icepick = require 'icepick'
+Icecup = require '../icecup'
+icecupTests = Icecup false
+icecupProduction = Icecup true
 
 minMaxCalculator = require '../min-max'
+minMaxSeamless = require '../min-max/seamless'
+minMaxImmutable = require '../min-max/immutablejs'
+minMaxIcepick = require '../min-max/icepick'
+minMaxIcecup = require '../min-max/icecup'
+minMaxIcecupProduction = require '../min-max/icecupProduction'
+
 createTree = require '../node-factory'
 records = require '../records'
 
 describe 'min max algorithm performance', ->
-    numberOfRuns = 10
+    numberOfRuns = 2
     numberOfChildren = memo().is -> null
     maxDepth = memo().is -> null
     infoSize = memo().is -> null
@@ -25,7 +35,7 @@ describe 'min max algorithm performance', ->
         beforeEach 'createData', ->
             store = createTree numberOfChildren(), maxDepth(), infoSize()
 
-        describe 'with 1 child, depth 1000', ->
+        describe.only 'with 1 child, depth 1000', ->
             console.log '-----'
             numberOfChildren.is -> 1
             maxDepth.is -> 1000
@@ -40,7 +50,6 @@ describe 'min max algorithm performance', ->
                         calculationFunction.is -> minMaxCalculator.calculateMinMaxMutable
 
                         it 'should work', ->
-
                             runPerformanceTest()
 
                     describe 'with cloning', ->
@@ -50,7 +59,7 @@ describe 'min max algorithm performance', ->
                             runPerformanceTest()
 
                 describe 'for seamless immutable', ->
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxSeamless
+                    calculationFunction.is -> minMaxSeamless.calculateMinMax
 
                     describe 'production mode', ->
                         conversionFunction.is -> seamlessProduction
@@ -66,7 +75,28 @@ describe 'min max algorithm performance', ->
 
                 describe 'for immutableJS records', ->
                     conversionFunction.is -> records.createStore
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxImmutable
+                    calculationFunction.is -> minMaxImmutable.calculateMinMax
+
+                    it 'should work', ->
+                        runPerformanceTest()
+
+                describe 'for ice pick', ->
+                    calculationFunction.is -> minMaxIcepick.calculateMinMax
+                    conversionFunction.is -> icepick.freeze
+
+                    it 'should work', ->
+                        runPerformanceTest()
+
+                describe 'for ice cup', ->
+                    calculationFunction.is -> minMaxIcecup.calculateMinMax
+                    conversionFunction.is -> icecupTests.toImmutable
+
+                    it 'should work', ->
+                        runPerformanceTest()
+
+                describe 'for ice cup PRODUCTION', ->
+                    calculationFunction.is -> minMaxIcecupProduction.calculateMinMax
+                    conversionFunction.is -> icecupProduction.toImmutable
 
                     it 'should work', ->
                         runPerformanceTest()
@@ -96,7 +126,7 @@ describe 'min max algorithm performance', ->
                             runPerformanceTest()
 
                 describe 'for seamless immutable', ->
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxSeamless
+                    calculationFunction.is -> minMaxSeamless.calculateMinMax
 
                     describe 'production mode', ->
                         conversionFunction.is -> seamlessProduction
@@ -112,7 +142,7 @@ describe 'min max algorithm performance', ->
 
                 describe 'for immutableJS records', ->
                     conversionFunction.is -> records.createStore
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxImmutable
+                    calculationFunction.is -> minMaxImmutable.calculateMinMax
 
                     it 'should work', ->
                         runPerformanceTest()
@@ -141,7 +171,7 @@ describe 'min max algorithm performance', ->
                             runPerformanceTest()
 
                 describe 'for seamless immutable', ->
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxSeamless
+                    calculationFunction.is -> minMaxSeamless.calculateMinMax
 
                     describe 'production mode', ->
                         conversionFunction.is -> seamlessProduction
@@ -157,7 +187,7 @@ describe 'min max algorithm performance', ->
 
                 describe 'for immutableJS records', ->
                     conversionFunction.is -> records.createStore
-                    calculationFunction.is -> minMaxCalculator.calculateMinMaxImmutable
+                    calculationFunction.is -> minMaxImmutable.calculateMinMax
 
                     it 'should work', ->
                         runPerformanceTest()

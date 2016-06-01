@@ -2,12 +2,19 @@
   "name": "application-name",
   "version": "0.0.1",
   "dependencies": {
+    "coffee-script": "^1.10.0",
+    "mocha": "^2.3.4",
     "chai": "^3.5.0",
     "immutable": "^3.8.1",
     "lodash": "^4.11.1",
     "memo-is": "0.0.2",
     "node-uuid": "^1.4.7",
-    "seamless-immutable": "^6.0.1"
+    "seamless-immutable": "^6.0.1",
+    "icepick": "1.2.0",
+    "deep-freeze": "0.0.1",
+    "performance-now": "0.2.0",
+    "react-addons-update": "15.1.0",
+    "react": "15.1.0"
   },
   "scripts": {
     "test": "mocha test/"

@@ -1,10 +1,9 @@
 _ = require 'lodash'
+now = require 'performance-now'
+cloneDeep = require 'lodash/cloneDeep'
 
 calculateMinMaxMutable = (store, nodeId) ->
     calculateMinMax store, nodeId, updateMutable
-
-calculateMinMaxSeamless = (store, nodeId) ->
-    calculateMinMax store, nodeId, updateSeamless
 
 calculateMinMaxWithCloning = (store, nodeId) ->
     node = loadClonedNode store, nodeId
@@ -16,7 +15,10 @@ calculateMinMaxWithCloning = (store, nodeId) ->
     for childId in childrenIds
         store = calculateMinMaxWithCloning store, childId
 
+    start = now()
     children = loadClonedNodes store, childrenIds
+    end = now()
+    console.log 'plain JS clone nodes', end-start
 
     startDate = _.min children.map (node) -> node.dates.startDate
     endDate = _.max children.map (node) -> calculateEndDate node
@@ -38,32 +40,11 @@ loadClonedNodes = (store, ids) ->
     ids.map (id) -> loadClonedNode store, id
 
 loadClonedNode = (store, id) ->
-    return _.cloneDeep store.nodes[id]
-
-
-calculateMinMaxImmutable = (store, nodeId) ->
-    node = loadNodeIm store, nodeId
-    childrenIds = getChildrenIds store, node
-
-    if childrenIds.size < 1
-        return store
-
-    childrenIds.forEach (childId) ->
-        store = calculateMinMaxImmutable store, childId
-
-    children = loadNodesIm store, childrenIds
-
-    startDate = children.map((node) -> node.dates.startDate).min()
-    endDate = children.map((node) -> calculateEndDate node).max()
-
-    updateSeamless(store, node, startDate, endDate)
-
-loadNodesIm = (store, ids) ->
-    ids.map (id) -> loadNodeIm store, id
-
-loadNodeIm = (store, id) ->
-    store.nodes.get id
-
+    start = now()
+    res = cloneDeep store.nodes[id]
+    end = now()
+    console.log 'dclone', end-start
+    return res
 
 calculateMinMax = (store, nodeId, updateFunction) ->
     node = loadNode store, nodeId
@@ -83,22 +64,18 @@ calculateMinMax = (store, nodeId, updateFunction) ->
     updateFunction(store, node, startDate, endDate)
 
 updateMutable = (store, node, startDate, endDate) ->
+    start = now()
     if node.dates.startDate > startDate
         node.dates.startDate = startDate
 
     if calculateEndDate(node) < endDate
         node.dates.duration = endDate - node.dates.startDate
 
+    end = now()
+    console.log 'update plain JS', end-start
+    
     return store
 
-updateSeamless = (store, node, startDate, endDate) ->
-    if node.dates.startDate > startDate
-        store = store.setIn ['nodes', node.id, 'dates', 'startDate'], startDate
-
-    if calculateEndDate(node) < endDate
-        store = store.setIn ['nodes', node.id, 'dates', 'duration'], endDate - startDate
-
-    return store
 
 loadNode = (store, id) ->
     store.nodes[id]
@@ -115,5 +92,5 @@ getChildrenIds = (store, parent) ->
         .map (relation) -> relation.targetId
 
 
-module.exports = {calculateMinMaxMutable, calculateMinMaxSeamless, calculateMinMaxImmutable, calculateMinMaxWithCloning}
+module.exports = {calculateMinMaxMutable, calculateMinMaxWithCloning}
 
